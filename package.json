@@ -1,8 +1,10 @@
 {
   "name": "raceiq",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "workspaces": ["client"],
+  "workspaces": [
+    "client"
+  ],
   "scripts": {
     "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
     "dev:server": "bun --watch run server/index.ts",
