@@ -1,0 +1,7 @@
+{
+  "name": "Nürburgring",
+  "sectors": {
+    "s1End": 0.31,
+    "s2End": 0.66
+  }
+}

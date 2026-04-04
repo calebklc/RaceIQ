@@ -1,0 +1,7 @@
+{
+  "name": "Homestead-Miami Speedway",
+  "sectors": {
+    "s1End": 0.333,
+    "s2End": 0.666
+  }
+}

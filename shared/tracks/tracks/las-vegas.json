@@ -1,0 +1,7 @@
+{
+  "name": "Las Vegas Street Circuit",
+  "sectors": {
+    "s1End": 0.319,
+    "s2End": 0.679
+  }
+}

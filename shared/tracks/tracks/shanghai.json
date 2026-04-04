@@ -1,0 +1,7 @@
+{
+  "name": "Shanghai International Circuit",
+  "sectors": {
+    "s1End": 0.314,
+    "s2End": 0.660
+  }
+}

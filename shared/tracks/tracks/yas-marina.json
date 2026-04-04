@@ -1,0 +1,7 @@
+{
+  "name": "Yas Marina Circuit",
+  "sectors": {
+    "s1End": 0.320,
+    "s2End": 0.669
+  }
+}

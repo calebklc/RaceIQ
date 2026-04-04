@@ -1,0 +1,158 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  # --- Triggered by manual dispatch: compute version, build, create draft ---
+  compute-version:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute new version
+        id: bump
+        shell: bash
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+          echo "::notice::Version bump: $CURRENT → $NEW (${{ inputs.bump }})"
+
+  build:
+    if: github.event_name == 'workflow_dispatch'
+    needs: compute-version
+    runs-on: blacksmith-2vcpu-windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build client
+        run: cd client && bun install && bun run build
+
+      - name: Prepare dist
+        shell: bash
+        run: mkdir -p dist
+
+      - name: Copy client assets
+        shell: bash
+        run: cp -r client/dist dist/public
+
+      - name: Copy shared data
+        run: bun scripts/copy-shared-data.ts
+
+      - name: Compile server binary
+        shell: bash
+        run: NODE_ENV=production bun build --compile --target=bun-windows-x64 --windows-icon=assets/raceiq.ico server/index.ts --outfile dist/raceiq.exe
+
+      - name: Patch exe to GUI subsystem (no console window)
+        run: bun scripts/patch-pe-gui.ts dist/raceiq.exe
+
+      - name: Package
+        shell: bash
+        run: |
+          VERSION=${{ needs.compute-version.outputs.version }}
+          cd dist && 7z a ../raceiq-v${VERSION}-windows-x64.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raceiq-v${{ needs.compute-version.outputs.version }}-windows-x64
+          path: raceiq-v${{ needs.compute-version.outputs.version }}-windows-x64.zip
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          $url = "https://github.com/jrsoftware/issrc/releases/download/is-6_7_1/innosetup-6.7.1.exe"
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\innosetup.exe"
+          Start-Process -Wait -FilePath "$env:TEMP\innosetup.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/DIR=C:\InnoSetup"
+          echo "C:\InnoSetup" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+
+      - name: Build installer
+        shell: cmd
+        run: |
+          SET VERSION=${{ needs.compute-version.outputs.version }}
+          iscc /DMyAppVersion=%VERSION% installer\raceiq.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raceiq-v${{ needs.compute-version.outputs.version }}-setup
+          path: RaceIQ-Setup-v${{ needs.compute-version.outputs.version }}.exe
+
+  draft-release:
+    if: github.event_name == 'workflow_dispatch'
+    needs: [compute-version, build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: raceiq-v*
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.compute-version.outputs.version }}
+          name: RaceIQ v${{ needs.compute-version.outputs.version }}
+          files: artifacts/**/*
+          generate_release_notes: true
+          draft: true
+
+  # --- Triggered when draft is published: commit version bump + tag ---
+  finalize:
+    if: github.event_name == 'release'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update version in package.json
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = '${VERSION}';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+      - name: Commit version bump
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: bump version to $VERSION"
+          git push

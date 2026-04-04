@@ -1,0 +1,7 @@
+{
+  "name": "Marina Bay Street Circuit",
+  "sectors": {
+    "s1End": 0.320,
+    "s2End": 0.676
+  }
+}

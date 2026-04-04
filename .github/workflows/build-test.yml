@@ -1,0 +1,25 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build client
+        run: cd client && bun install && bun run build
+
+      - name: Run tests
+        run: bun test

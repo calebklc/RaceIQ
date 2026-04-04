@@ -1,0 +1,7 @@
+{
+  "name": "Mid-Ohio Sports Car Course",
+  "sectors": {
+    "s1End": 0.33,
+    "s2End": 0.66
+  }
+}

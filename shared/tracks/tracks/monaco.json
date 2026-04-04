@@ -1,0 +1,7 @@
+{
+  "name": "Circuit de Monaco",
+  "sectors": {
+    "s1End": 0.336,
+    "s2End": 0.674
+  }
+}

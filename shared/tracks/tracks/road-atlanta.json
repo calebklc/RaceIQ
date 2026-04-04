@@ -1,0 +1,7 @@
+{
+  "name": "Road Atlanta",
+  "sectors": {
+    "s1End": 0.34,
+    "s2End": 0.66
+  }
+}

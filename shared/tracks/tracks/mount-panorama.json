@@ -1,0 +1,7 @@
+{
+  "name": "Mount Panorama Circuit",
+  "sectors": {
+    "s1End": 0.34,
+    "s2End": 0.66
+  }
+}

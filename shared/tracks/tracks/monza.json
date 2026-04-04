@@ -1,0 +1,7 @@
+{
+  "name": "Autodromo Nazionale Monza",
+  "sectors": {
+    "s1End": 0.312,
+    "s2End": 0.647
+  }
+}

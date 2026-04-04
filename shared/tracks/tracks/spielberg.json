@@ -1,0 +1,7 @@
+{
+  "name": "Red Bull Ring",
+  "sectors": {
+    "s1End": 0.234,
+    "s2End": 0.639
+  }
+}

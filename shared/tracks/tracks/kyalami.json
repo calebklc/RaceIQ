@@ -1,0 +1,7 @@
+{
+  "name": "Kyalami Grand Prix Circuit",
+  "sectors": {
+    "s1End": 0.33,
+    "s2End": 0.66
+  }
+}

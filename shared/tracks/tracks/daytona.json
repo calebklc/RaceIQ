@@ -1,0 +1,7 @@
+{
+  "name": "Daytona International Speedway",
+  "sectors": {
+    "s1End": 0.33,
+    "s2End": 0.66
+  }
+}

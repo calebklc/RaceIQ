@@ -1,0 +1,7 @@
+{
+  "name": "Circuit de la Sarthe",
+  "sectors": {
+    "s1End": 0.27,
+    "s2End": 0.65
+  }
+}
