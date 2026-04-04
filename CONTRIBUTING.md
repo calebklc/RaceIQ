@@ -64,25 +64,3 @@ Extracted data is written to `shared/track-outlines/` and `shared/tracks.csv`.
 bun run db:push       # push schema changes
 bun run db:generate   # generate migration files
 ```
-
-## Game Configuration
-
-### Forza Motorsport
-
-1. Go to **Settings > HUD and Gameplay**
-2. Set **Data Out** to `On`
-3. Set **Data Out IP Address** to `127.0.0.1`
-4. Set **Data Out Port** to `5300`
-5. Set **Data Out Package Format** to `Car Dash`
-
-### F1 2025
-
-1. Go to **Settings > Telemetry Settings**
-2. Set **UDP Telemetry** to `On`
-3. Set **UDP Broadcast Mode** to `Off`
-4. Set **UDP IP Address** to `127.0.0.1`
-5. Set **UDP Port** to `5300`
-
-### Assetto Corsa Competizione
-
-No UDP configuration needed. RaceIQ reads telemetry directly via shared memory. Run RaceIQ on the same machine as the game.

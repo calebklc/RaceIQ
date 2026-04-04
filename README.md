@@ -44,7 +44,11 @@ It captures telemetry from your racing games, records every lap to a local datab
 
 Grab the latest installer from the [releases page](https://github.com/SpeedHQ/RaceIQ/releases/latest) and run it.
 
-### 2. Run and Connect
+### 2. Extract Track Data
+
+RaceIQ extracts track outlines and boundary data from game files. Make sure your game is installed before launching RaceIQ, then use the built-in extractor to pull track data. This is required for Forza Motorsport and F1 2025.
+
+### 3. Run and Connect
 
 Open RaceIQ and follow the setup wizard. Configure your game's telemetry settings to send UDP data to `127.0.0.1:5301`, then start a race — telemetry will appear automatically.
 
